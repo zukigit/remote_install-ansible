@@ -1,1 +1,1 @@
-# Automated pacakage installion using ansible
+# Automated pacakage installation using ansible
