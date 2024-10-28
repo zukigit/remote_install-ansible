@@ -1,0 +1,15 @@
+- name: Install jobarg_server MySQL
+  hosts: all
+  become: true
+  vars:
+    rpm_file: ./package.rpm  # Set the path to your RPM here
+  tasks:
+    - name: Copy the RPM file to the remote host
+      ansible.builtin.copy:
+        src: "{{ rpm_file }}"
+        dest: /tmp/package.rpm
+    
+    - name: Install the RPM package
+      ansible.builtin.yum:
+        name: /tmp/package.rpm
+        state: present
