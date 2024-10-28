@@ -11,6 +11,7 @@
         gpgcheck: yes
         gpgkey: https://download.docker.com/linux/rhel/gpg
         file: docker-ce
+      when: ansible_os_family == "RedHat" and ansible_distribution_major_version in ["9"]
 
     - name: Install docker
       ansible.builtin.dnf:
