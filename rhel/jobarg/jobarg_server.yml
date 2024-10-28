@@ -1,2 +1,0 @@
-- name: Install docker
-  import_playbook: docker/install_docker.yml
