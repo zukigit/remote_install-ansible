@@ -28,8 +28,16 @@
         dest: /tmp/jobarg-server-mysql.rpm
       when: ansible_os_family == "RedHat" and ansible_distribution_major_version in ["7"]
 
+    - name: Uninstall old jobarg-server
+      ansible.builtin.yum:
+        name:
+          - jobarranger-server-mysql
+          - jobarranger-server-postgresql
+        state: absent
+
     - name: Install the RPM package
       ansible.builtin.yum:
         name: /tmp/jobarg-server-mysql.rpm
         state: present
         disable_gpg_check: true
+        allow_downgrade: true
