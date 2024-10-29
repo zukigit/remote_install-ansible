@@ -1,0 +1,23 @@
+- name: Install epel-release
+  hosts: all
+  become: true
+  tasks:
+    - name: Download epel-release RPM file for rhel9
+      get_url:
+        url: https://dl.fedoraproject.org/pub/epel/9/Everything/x86_64/Packages/e/epel-release-9-8.el9.noarch.rpm
+        dest: /tmp/epel-release.rpm
+        mode: '0644'
+      when: ansible_os_family == "RedHat" and ansible_distribution_major_version in ["9"]
+
+    - name: Download epel-release RPM file for rhel8
+      get_url:
+        url: https://dl.fedoraproject.org/pub/epel/8/Everything/x86_64/Packages/e/epel-release-8-21.el8.noarch.rpm
+        dest: /tmp/epel-release.rpm
+        mode: '0644'
+      when: ansible_os_family == "RedHat" and ansible_distribution_major_version in ["8"]
+
+    - name: Install epel-release.rpm
+      yum:
+        name: /tmp/epel-release.rpm
+        state: present
+        disable_gpg_check: true
