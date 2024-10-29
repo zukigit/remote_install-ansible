@@ -1,10 +1,8 @@
-- name: Install epel-release
-  import_playbook: ../epel-release/install_epel-release.yml
-
-- name: Install jobarg_server
+- name: Install jobarg_agent
   hosts: all
   become: true
   vars:
+    rpm_el6: ./el6.rpm # rpm file path
     rpm_el7: ./el7.rpm # rpm file path
     rpm_el8: ./el8.rpm
     rpm_el9: ./el9.rpm
@@ -13,31 +11,30 @@
     - name: Copy the RPM file to the remote host redhat9
       ansible.builtin.copy:
         src: "{{ rpm_el9 }}"
-        dest: /tmp/jobarg-server.rpm
+        dest: /tmp/jobarg-agent.rpm
       when: ansible_os_family == "RedHat" and ansible_distribution_major_version in ["9"]
 
     - name: Copy the RPM file to the remote host redhat8
       ansible.builtin.copy:
         src: "{{ rpm_el8 }}"
-        dest: /tmp/jobarg-server.rpm
+        dest: /tmp/jobarg-agent.rpm
       when: ansible_os_family == "RedHat" and ansible_distribution_major_version in ["8"]
 
     - name: Copy the RPM file to the remote host redhat7
       ansible.builtin.copy:
         src: "{{ rpm_el7 }}"
-        dest: /tmp/jobarg-server.rpm
+        dest: /tmp/jobarg-agent.rpm
       when: ansible_os_family == "RedHat" and ansible_distribution_major_version in ["7"]
 
-    - name: Uninstall old jobarg-server
-      ansible.builtin.yum:
-        name:
-          - jobarranger-server-mysql
-          - jobarranger-server-postgresql
-        state: absent
+    - name: Copy the RPM file to the remote host redhat6
+      ansible.builtin.copy:
+        src: "{{ rpm_el6 }}"
+        dest: /tmp/jobarg-agent.rpm
+      when: ansible_os_family == "RedHat" and ansible_distribution_major_version in ["6"]
 
     - name: Install the RPM package
       ansible.builtin.yum:
-        name: /tmp/jobarg-server.rpm
+        name: /tmp/jobarg-agent.rpm
         state: present
         disable_gpg_check: true
         allow_downgrade: true
