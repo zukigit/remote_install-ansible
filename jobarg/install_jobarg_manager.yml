@@ -1,3 +1,9 @@
+- name: Install php-mysqlnd
+  import_playbook: ../php/install_php-mysqlnd.yml
+
+- name: Install php-pgsql
+  import_playbook: ../php/install_php-pgsql.yml
+
 - name: Install jobarg_manager
   hosts: all
   become: true
