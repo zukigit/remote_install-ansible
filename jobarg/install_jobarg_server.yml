@@ -1,9 +1,6 @@
 - name: Install epel-release
   import_playbook: ../epel-release/install_epel-release.yml
 
-- name: Install centos 9 stream crb repo
-  import_playbook: ../centos/install_9stream_CRB_repo.yml
-
 - name: Install jobarg_server
   hosts: all
   become: true
