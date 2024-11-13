@@ -1,0 +1,9 @@
+- name: Install php-pgsql 
+  hosts: all
+  become: true
+  tasks:
+    - name: Install php-pgsql 
+      ansible.builtin.dnf:
+        name: php-pgsql
+        state: present
+      when: ansible_os_family == "RedHat" and ansible_distribution_major_version in ["9"]
