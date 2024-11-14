@@ -1,5 +1,9 @@
 - name: Manage service
-  ansible.builtin.service:
-    name: "{{ service_name }}"
-    state: "{{ state }}"
-    enabled: "{{ enabled | default(omit) }}"
+  hosts: all
+  become: yes
+  tasks:
+    - name: Manage service
+      ansible.builtin.service:
+        name: "{{ service_name }}"
+        state: "{{ state }}"
+        enabled: "{{ enabled | default(omit) }}"
