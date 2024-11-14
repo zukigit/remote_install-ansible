@@ -30,3 +30,27 @@
         state: present
         disable_gpg_check: true
         allow_downgrade: true
+
+- name: Stop and disable firewalld for rhel
+  import_playbook: ../service/manage_service.yml
+  vars:
+      service_name: frewalld
+      state: stopped
+      enabled: no
+  when: ansible_os_family == "RedHat"
+
+- name: Restart and enable php-fpm for rhel
+  import_playbook: ../service/manage_service.yml
+  vars:
+      service_name: php-fpm
+      state: restarted
+      enabled: yes
+  when: ansible_os_family == "RedHat"
+
+- name: Restart and enable httpd for rhel
+  import_playbook: ../service/manage_service.yml
+  vars:
+      service_name: httpd
+      state: restarted
+      enabled: yes
+  when: ansible_os_family == "RedHat"
