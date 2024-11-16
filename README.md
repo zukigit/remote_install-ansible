@@ -1,4 +1,4 @@
-# Automated pacakage installation using ansible
+# Automatic testing environment preparation tool using Ansible.
 
 ## How to generate SSH keys
 - `$ ssh-keygen -t rsa -b 4096 -C "user@example.com"`
