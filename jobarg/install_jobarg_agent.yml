@@ -32,10 +32,10 @@
         dest: /tmp/jobarg-agent.rpm
       when: ansible_os_family == "RedHat" and ansible_distribution_major_version in ["6"]
 
-    - name: Uninstall old jobarg-agent
+    - name: Uninstall old jobarranger-agent
       ansible.builtin.yum:
         name:
-          - jobarg-agent
+          - jobarranger-agent
         state: absent
 
     - name: Install the RPM package
