@@ -1,3 +1,6 @@
+- name: Add stream repo
+  import_playbook: ../centos/install_stream_repo.yml
+
 - name: Install docker on redhats
   hosts: all
   become: true
