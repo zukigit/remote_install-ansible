@@ -1,0 +1,7 @@
+- name: Add CentOS Stream Repo
+  hosts: all
+  become: true
+  tasks:
+    - name: Include adding repo tasks
+      include_tasks: ./add_{{ansible_distribution_major_version}}stream_repo_tasks.yml
+      when: ansible_os_family == "RedHat" and ansible_distribution_major_version in ["8", "9"]

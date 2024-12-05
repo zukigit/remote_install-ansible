@@ -1,0 +1,17 @@
+- name: Add CentOS 8 BaseOS Repo
+  yum_repository:
+    name: centos-8-baseos
+    description: CentOS 8 BaseOS Repository
+    file: centos-8-stream
+    baseurl: https://vault.centos.org/8-stream/BaseOS/x86_64/os/
+    gpgcheck: no
+    enabled: yes
+
+- name: Add CentOS 8 AppStream repo
+  yum_repository:
+    name: centos-8-appstream
+    description: CentOS 8 AppStream Repository
+    file: centos-8-stream
+    baseurl: https://vault.centos.org/8-stream/AppStream/x86_64/os/
+    gpgcheck: no
+    enabled: yes
