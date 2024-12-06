@@ -12,3 +12,4 @@
 - **rpm_el8**: Redhat 8 rpm filepath.
 - **rpm_el7**: Redhat 7 rpm filepath.
 - **rpm_el6**: Redhat 6 rpm filepath.
+- **package_src**: Debian-based package (.deb) filepath.
