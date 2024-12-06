@@ -1,5 +1,5 @@
 - name: Install php-mysqlnd
-  hosts: all
+  hosts: redhat_servers
   become: true
   tasks:
     - name: Install php-mysqlnd

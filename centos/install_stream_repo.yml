@@ -1,5 +1,5 @@
 - name: Add CentOS Stream Repo
-  hosts: all
+  hosts: redhat_servers
   become: true
   tasks:
     - name: Include adding repo tasks

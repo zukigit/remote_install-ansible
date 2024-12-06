@@ -1,5 +1,5 @@
 - name: Install epel-release
-  hosts: all
+  hosts: redhat_servers
   become: true
   tasks:
     - name: Download epel-release RPM file for rhel9
