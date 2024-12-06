@@ -1,8 +1,8 @@
 - name: Install epel-release
   import_playbook: ../epel-release/install_epel-release.yml
 
-- name: Install jobarg_server
-  hosts: all
+- name: Install jobarg_server (RedHat)
+  hosts: redhat_servers
   become: true
   vars:
     rpm_el7: ./el7.rpm # rpm file path
@@ -41,3 +41,38 @@
         state: present
         disable_gpg_check: true
         allow_downgrade: true
+
+# add jobarg_server on debian-based servers
+- name: Install jobarg_server (Debian)
+  hosts: debian_servers
+  become: true
+  vars:
+    package_src: ./jobarranger-server.deb
+
+  tasks:
+    - name: Copy the Package file to the remote host debian
+      ansible.builtin.copy:
+        src: "{{ package_src }}"
+        dest: "/tmp/{{ package_src | basename }}"
+
+    - name: Uninstall old jobarranger-server (Debian)
+      apt:
+        name:
+          - jobarranger-server-postgresql
+          - jobarranger-server-mysql
+        purge: true
+        state: absent
+
+    - name: Install the jobarg_server package (Debian)
+      apt:
+        deb: "/tmp/{{ package_src | basename }}"
+        state: present
+
+- name: Managing services for Jobarranger Server (Debian)
+  hosts: debian_servers
+  become: true
+  tasks:
+    - name: Enable jobarg-server
+      ansible.builtin.service:
+        name: jobarg-server
+        enabled: true

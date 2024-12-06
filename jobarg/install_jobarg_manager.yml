@@ -4,8 +4,8 @@
 - name: Install php-pgsql
   import_playbook: ../php/install_php-pgsql.yml
 
-- name: Install jobarg_manager
-  hosts: all
+- name: Install jobarg_manager (RedHat)
+  hosts: redhat_servers
   become: true
   vars:
     rpm_el8: ./el8.rpm
@@ -23,7 +23,7 @@
         src: "{{ rpm_el8 }}"
         dest: /tmp/jobarg-manager.rpm
       when: ansible_os_family == "RedHat" and ansible_distribution_major_version in ["8"]
-    
+
     - name: Uninstall old jobarranger-manager
       ansible.builtin.yum:
         name:
@@ -37,26 +37,66 @@
         disable_gpg_check: true
         allow_downgrade: true
 
-- name: Stop and disable firewalld for rhel
-  import_playbook: ../service/manage_service.yml
-  vars:
-      service_name: firewalld
-      state: stopped
-      enabled: no
-  when: ansible_os_family == "RedHat"
+- name: Managing services for jobarg_manager (RedHat)
+  hosts: redhat_servers
+  become: true
+  tasks:
+    - name: Stop and disable firewalld for rhel
+      ansible.builtin.service:
+        name: firewalld
+        state: stopped
+        enabled: false
 
-- name: Restart and enable php-fpm for rhel
-  import_playbook: ../service/manage_service.yml
-  vars:
-      service_name: php-fpm
-      state: restarted
-      enabled: yes
-  when: ansible_os_family == "RedHat"
+    - name: Restart and enable php-fpm for rhel
+      ansible.builtin.service:
+        name: php-fpm
+        state: restarted
+        enabled: true
 
-- name: Restart and enable httpd for rhel
-  import_playbook: ../service/manage_service.yml
+    - name: Restart and enable httpd for rhel
+      ansible.builtin.service:
+        name: httpd
+        state: restarted
+        enabled: true
+
+# add jobarg_manager on debian-based servers
+- name: Install jobarg_manager (Debian)
+  hosts: debian_servers
+  become: true
   vars:
-      service_name: httpd
-      state: restarted
-      enabled: yes
-  when: ansible_os_family == "RedHat"
+    package_src: ./jobarranger-manager.deb
+
+  tasks:
+    - name: Copy the Package file to the remote host debian
+      ansible.builtin.copy:
+        src: "{{ package_src }}"
+        dest: "/tmp/{{ package_src | basename }}"
+
+    - name: Uninstall old jobarranger-manager
+      apt:
+        name:
+          - jobarranger-manager
+        purge: true
+        state: absent
+
+    - name: Install php-mysqlnd and php-pgsql
+      apt:
+        name:
+          - php-mysqlnd
+          - php-pgsql
+        state: present
+
+    - name: Install the jobarg_manager package
+      apt:
+        deb: "/tmp/{{ package_src | basename }}"
+        state: present
+
+- name: Managing services for jobarg_manager (Debian)
+  hosts: debian_servers
+  become: true
+  tasks:
+    - name: Restart and enable apache2
+      ansible.builtin.service:
+        name: apache2
+        state: restarted
+        enabled: true

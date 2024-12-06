@@ -1,5 +1,6 @@
-- name: Install jobarg_agent
-  hosts: all
+# add jobarg_agentd on redhat-based servers
+- name: Install jobarg_agent (RedHat)
+  hosts: redhat_servers
   become: true
   vars:
     rpm_el6: ./el6.rpm # rpm file path
@@ -44,3 +45,37 @@
         state: present
         disable_gpg_check: true
         allow_downgrade: true
+
+# add jobarg_agentd on debian-based servers
+- name: Install jobarg_agent (Debian)
+  hosts: debian_servers
+  become: true
+  vars:
+    package_src: ./jobarranger-agentd.deb
+
+  tasks:
+    - name: Copy the Package file to the remote host debian
+      ansible.builtin.copy:
+        src: "{{ package_src }}"
+        dest: "/tmp/{{ package_src | basename }}"
+
+    - name: Uninstall old jobarranger-agent (Debian)
+      apt:
+        name:
+          - jobarranger-agentd
+        purge: true
+        state: absent
+
+    - name: Install the jobarg_agent package (Debian)
+      apt:
+        deb: "/tmp/{{ package_src | basename }}"
+        state: present
+
+- name: Managing services for Jobarranger Agent (Debian)
+  hosts: debian_servers
+  become: true
+  tasks:
+    - name: Enable jobarg-agentd
+      ansible.builtin.service:
+        name: jobarg-agentd
+        enabled: true
