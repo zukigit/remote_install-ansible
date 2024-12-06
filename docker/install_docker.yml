@@ -1,8 +1,9 @@
+# add docker on redhat-based servers
 - name: Add stream repo
   import_playbook: ../centos/install_stream_repo.yml
 
 - name: Install docker on redhats
-  hosts: all
+  hosts: redhat_servers
   become: true
   tasks:
     - name: Add Docker repo
@@ -25,3 +26,63 @@
           - docker-buildx-plugin
           - docker-compose-plugin
         state: present
+      when: ansible_os_family == "RedHat"
+
+# add docker on debian-based servers
+- name: Install Docker on Debian
+  hosts: debian_servers
+  become: yes
+  vars:
+    distro_name: "{{ ansible_distribution | lower }}"
+  tasks:
+    - name: Uninstall all conflicting packages
+      shell: for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done
+
+    - name: Install necessary dependencies
+      apt:
+        name:
+          - ca-certificates
+          - curl
+        state: present
+        update_cache: yes
+
+    - name: Create keyring directory
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: "0755"
+
+    - name: Download Docker GPG key
+      shell: curl -fsSL https://download.docker.com/linux/{{ distro_name }}/gpg -o /etc/apt/keyrings/docker.asc
+      args:
+        creates: /etc/apt/keyrings/docker.asc
+
+    - name: Set proper permissions for Docker key
+      file:
+        path: /etc/apt/keyrings/docker.asc
+        mode: "0444"
+
+    - name: Add Docker repository to sources list
+      shell: echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/{{ distro_name }} $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+      args:
+        creates: /etc/apt/sources.list.d/docker.list
+
+    - name: APT cache update
+      apt:
+        update_cache: true
+
+    - name: Install Docker packages
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+
+    - name: Ensure Docker service is started and enabled
+      service:
+        name: docker
+        state: started
+        enabled: true
