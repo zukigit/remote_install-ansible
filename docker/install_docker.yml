@@ -86,3 +86,34 @@
         name: docker
         state: started
         enabled: true
+
+#add docker on amazon linux 2 and 2023
+- name: Install docker on Amazon Linux 2 and 2023
+  hosts: amazon_linux_servers
+  become: true
+  tasks:
+    - name: Install Docker
+      ansible.builtin.yum:
+        name: docker
+        state: present
+      when: 
+        - ansible_distribution == "Amazon"
+        - ansible_distribution_major_version in ["2", "2023"]
+
+    - name: Start Docker service
+      ansible.builtin.systemd:
+        name: docker
+        state: started
+        enabled: true
+      when: 
+        - ansible_distribution == "Amazon"
+        - ansible_distribution_major_version in ["2", "2023"]
+
+    - name: Install Docker Compose
+      ansible.builtin.shell: >
+        curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+    - name: Make Docker Compose executable
+      ansible.builtin.file:
+        path: /usr/local/bin/docker-compose
+        mode: '0755'

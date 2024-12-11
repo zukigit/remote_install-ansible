@@ -79,3 +79,50 @@
       ansible.builtin.service:
         name: jobarg-agentd
         enabled: true
+
+# add jobarg_agentd on amzaon-linux servers
+- name: Install jobarg_agent (Amazon_2 & 2023)
+  hosts: amazon_linux_servers
+  become: true
+
+  tasks:
+    - name: Copy the RPM file to the remote host amazon linux 2
+      ansible.builtin.copy:
+        src: "{{ amz_2 }}"
+        dest: /tmp/jobarg-agent.rpm
+      when: 
+        - ansible_distribution == "Amazon"
+        - ansible_distribution_major_version in ["2", "2023"]
+
+    - name: Uninstall old jobarranger-agent
+      ansible.builtin.yum:
+        name:
+          - jobarranger-agentd
+        state: absent
+      when: 
+        - ansible_distribution == "Amazon"
+        - ansible_distribution_major_version in ["2", "2023"]
+      
+
+    - name: Install the RPM package
+      yum:
+        name: /tmp/jobarg-agent.rpm
+        state: present
+        disable_gpg_check: true
+        allow_downgrade: true
+      when: 
+        - ansible_distribution == "Amazon"
+        - ansible_distribution_major_version in ["2", "2023"]
+
+- name: Managing services for Jobarranger Agent (Amazon 2 & 2023)
+  hosts: amazon_linux_servers
+  become: true
+  tasks:
+    - name: Enable jobarg-agentd
+      ansible.builtin.systemd:
+        name: jobarg-agentd
+        state: started
+        enabled: true
+      when: 
+        - ansible_distribution == "Amazon"
+        - ansible_distribution_major_version in ["2", "2023"]

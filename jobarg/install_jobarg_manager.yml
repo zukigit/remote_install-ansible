@@ -24,6 +24,12 @@
         dest: /tmp/jobarg-manager.rpm
       when: ansible_os_family == "RedHat" and ansible_distribution_major_version in ["8"]
 
+    - name: Copy the RPM file to the remote host redhat7
+      ansible.builtin.copy:
+        src: "{{ rpm_el7 }}"
+        dest: /tmp/jobarg-manager.rpm
+      when: ansible_os_family == "RedHat" and ansible_distribution_major_version in ["7"]
+
     - name: Uninstall old jobarranger-manager
       ansible.builtin.yum:
         name:
@@ -98,5 +104,85 @@
     - name: Restart and enable apache2
       ansible.builtin.service:
         name: apache2
+        state: restarted
+        enabled: true
+
+# add jobarg_manager on amazonlinux server
+- name: Install jobarg_manager (Amazon_2 & 2023)
+  hosts: amazon_linux_servers
+  become: true
+
+  tasks:
+    - name: Copy the RPM file to the remote host amazon linux 2 or 2023
+      ansible.builtin.copy:
+        src: "{{ amz_2 }}"
+        dest: /tmp/jobarg-manager.rpm
+    
+    - name: Enable Amazon Extras for PHP 7.2
+      ansible.builtin.command: amazon-linux-extras enable php7.2
+      when: 
+      - ansible_distribution == "Amazon" and ansible_distribution_major_version == "2"
+
+    - name: Other required PHP packages on Amazon Linux 2
+      ansible.builtin.yum:
+        name:
+          - httpd
+          - php-cli
+          - php-common
+          - php-fpm
+          - php-mbstring
+          - php-pdo
+          - php-xml
+        state: present
+      when: 
+        - ansible_distribution == "Amazon" and ansible_distribution_major_version == "2"
+
+    - name: Install PHP 8.1 for Amazon linux 2023
+      ansible.builtin.yum:
+        name: php8.1
+        state: present
+      when:
+        - ansible_distribution == "Amazon" and ansible_distribution_major_version == "2023"
+
+    - name: Install additional PHP extensions+ for Amazon linux 2 and 2023
+      ansible.builtin.dnf:
+        name:
+          - php-mysqlnd
+          - php-pgsql
+        state: present
+
+    - name: Uninstall old jobarranger-manager
+      ansible.builtin.yum:
+        name:
+          - jobarranger-manager
+        state: absent
+
+    - name: Install the RPM package
+      yum:
+        name: /tmp/jobarg-manager.rpm
+        state: present
+        disable_gpg_check: true
+        allow_downgrade: true
+
+- name: Managing services for jobarg_manager (Amazon linux 2 & 2023)
+  hosts: amazon_linux_servers
+  become: true
+  tasks:
+    - name: Stop and disable firewalld for Amazon linux 2
+      ansible.builtin.systemd:
+        name: firewalld
+        state: stopped
+        enabled: false
+      when: firewalld_status is defined and firewalld_status.rc == 0
+
+    - name: Restart and enable php-fpm for Amazon linux 2
+      ansible.builtin.systemd:
+        name: php-fpm
+        state: restarted
+        enabled: true
+
+    - name: Restart and enable httpd for Amazon linux 2
+      ansible.builtin.systemd:
+        name: httpd
         state: restarted
         enabled: true
