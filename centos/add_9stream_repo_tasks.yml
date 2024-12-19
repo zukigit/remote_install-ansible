@@ -5,3 +5,21 @@
     baseurl: https://mirror.stream.centos.org/9-stream/CRB/x86_64/os/
     gpgcheck: no
     enabled: yes
+
+- name: Add CentOS 9 BaseOS Repo
+  yum_repository:
+    name: centos-9-baseos
+    description: CentOS 9 BaseOS Repository
+    file: centos-9-stream
+    baseurl: https://mirror.stream.centos.org/9-stream/BaseOS/x86_64/os/
+    gpgcheck: no
+    enabled: yes
+
+- name: Add CentOS 9 AppStream repo
+  yum_repository:
+    name: centos-9-appstream
+    description: CentOS 9 AppStream Repository
+    file: centos-9-stream
+    baseurl: https://mirror.stream.centos.org/9-stream/AppStream/x86_64/os/
+    gpgcheck: no
+    enabled: yes
