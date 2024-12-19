@@ -1,0 +1,11 @@
+- name: Run zabbix DB setup script
+  ansible.builtin.shell: docker exec -it --user root psql14 ./tmp/db_setup.sh
+
+- name: Setup JAZ tables (DROP_TABLE)
+  ansible.builtin.shell: cat /usr/share/doc/jobarranger-server-postgresql/database/postgresql/PostgreSQL_JA_DROP_TABLE.sql | docker exec -i psql14 psql -U zabbix -d zabbix
+
+- name: Setup JAZ tables (CREATE_TABLE)
+  ansible.builtin.shell: cat /usr/share/doc/jobarranger-server-postgresql/database/postgresql/PostgreSQL_JA_CREATE_TABLE.sql | docker exec -i psql14 psql -U zabbix -d zabbix
+
+- name: Setup JAZ tables (INSERT_TABLE)
+  ansible.builtin.shell: cat /usr/share/doc/jobarranger-server-postgresql/database/data/JA_INSERT_TABLE.sql | docker exec -i psql14 psql -U zabbix -d zabbix

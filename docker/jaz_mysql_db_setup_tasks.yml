@@ -1,0 +1,11 @@
+- name: Run zabbix DB setup script
+  ansible.builtin.shell: docker exec -it --user root mysql8 ./tmp/db/db_setup.sh
+
+- name: Setup JAZ tables (DROP_TABLE)
+  ansible.builtin.shell: cat /usr/share/doc/jobarranger-server-mysql/database/mysql/MySQL_JA_DROP_TABLE.sql | docker exec -i mysql8 mysql -u zabbix -pzabbix zabbix
+
+- name: Setup JAZ tables (CREATE_TABLE)
+  ansible.builtin.shell: cat /usr/share/doc/jobarranger-server-mysql/database/mysql/MySQL_JA_CREATE_TABLE.sql | docker exec -i mysql8 mysql -u zabbix -pzabbix zabbix
+
+- name: Setup JAZ tables (INSERT_TABLE)
+  ansible.builtin.shell: cat /usr/share/doc/jobarranger-server-mysql/database/data/JA_INSERT_TABLE.sql | docker exec -i mysql8 mysql -u zabbix -pzabbix zabbix

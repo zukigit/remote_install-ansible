@@ -1,0 +1,56 @@
+- name: Install zabbix container on redhats
+  hosts: redhat_servers
+  become: true
+  tasks:
+    - name: Start service docker, if not started
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Copy docker image files
+      ansible.builtin.copy:
+        src: "{{ image_path }}"
+        dest: /tmp/{{ image_path | basename }}
+
+    - name: Check/Install gzip
+      ansible.builtin.yum:
+        name: gzip
+        state: present
+
+    - name: Remove all docker containers
+      ansible.builtin.shell: docker ps -aq | xargs -r docker stop && docker ps -aq | xargs -r docker remove
+
+    - name: Remove all docker images
+      ansible.builtin.shell: docker images -aq | xargs -r docker rmi
+
+    - name: Load docker images
+      ansible.builtin.shell: gzip -dc /tmp/{{ image_path | basename }} | docker load
+
+    - name: Copy docker compose file
+      ansible.builtin.copy:
+        src: "{{ docker_compose_path }}"
+        dest: /tmp/{{ docker_compose_path | basename }}
+
+    - name: Start docker images
+      ansible.builtin.shell: docker compose -f /tmp/{{ docker_compose_path | basename }} up -d && sleep 30
+
+    - name: Include jaz db setup tasks (Postgresql)
+      include_tasks: ./jaz_postgres_db_setup_tasks.yml
+      when: db_type == "psql"
+
+    - name: Include jaz db setup tasks (Mysql)
+      include_tasks: ./jaz_mysql_db_setup_tasks.yml
+      when: db_type == "mysql"
+
+    - name: Restart docker containers
+      ansible.builtin.shell: docker ps -aq | xargs -r docker restart
+
+    - name: Enable jaz services
+      ansible.builtin.service:
+        name: "{{ item }}"
+        enabled: yes
+      loop:
+        - jobarg-server
+        - jobarg-agentd
+        - httpd
