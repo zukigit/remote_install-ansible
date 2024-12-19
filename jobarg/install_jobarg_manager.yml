@@ -43,6 +43,14 @@
         disable_gpg_check: true
         allow_downgrade: true
 
+    - name: Create log directory
+      ansible.builtin.file:
+        path: "/var/log/jobarranger/manager"
+        state: directory
+        owner: apache
+        group: apache
+        mode: '0755'
+
 - name: Managing services for jobarg_manager (RedHat)
   hosts: redhat_servers
   become: true
@@ -96,6 +104,14 @@
       apt:
         deb: "/tmp/{{ package_src | basename }}"
         state: present
+
+    - name: Create log directory
+      ansible.builtin.file:
+        path: "/var/log/jobarranger/manager"
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
 
 - name: Managing services for jobarg_manager (Debian)
   hosts: debian_servers
@@ -163,6 +179,14 @@
         state: present
         disable_gpg_check: true
         allow_downgrade: true
+
+    - name: Create log directory
+      ansible.builtin.file:
+        path: "/var/log/jobarranger/manager"
+        state: directory
+        owner: apache
+        group: apache
+        mode: '0755'
 
 - name: Managing services for jobarg_manager (Amazon linux 2 & 2023)
   hosts: amazon_linux_servers
