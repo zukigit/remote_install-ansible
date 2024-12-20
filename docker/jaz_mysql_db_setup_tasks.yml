@@ -2,10 +2,18 @@
   ansible.builtin.shell: docker exec -it --user root mysql8 ./tmp/db/db_setup.sh
 
 - name: Setup JAZ tables (DROP_TABLE)
-  ansible.builtin.shell: cat /usr/share/doc/jobarranger-server-mysql/database/mysql/MySQL_JA_DROP_TABLE.sql | docker exec -i mysql8 mysql -u zabbix -pzabbix zabbix
+  ansible.builtin.shell: cat /usr/share/doc/jobarranger-server-mysql/database/mysql/MySQL_JA_DROP_TABLE.sql | docker exec -i mysql8 mysql -u zabbix -pzabbix --force zabbix
 
 - name: Setup JAZ tables (CREATE_TABLE)
   ansible.builtin.shell: cat /usr/share/doc/jobarranger-server-mysql/database/mysql/MySQL_JA_CREATE_TABLE.sql | docker exec -i mysql8 mysql -u zabbix -pzabbix zabbix
 
 - name: Setup JAZ tables (INSERT_TABLE)
   ansible.builtin.shell: cat /usr/share/doc/jobarranger-server-mysql/database/data/JA_INSERT_TABLE.sql | docker exec -i mysql8 mysql -u zabbix -pzabbix zabbix
+
+- name: Copy MySQL native password authentication plugin
+  ansible.builtin.copy:
+    src: ./mysql_native_password.sql
+    dest: /tmp/mysql_native_password.sql
+
+- name: MySQL native password authentication plugin for zabbix
+  ansible.builtin.shell: cat /tmp/mysql_native_password.sql | docker exec -i mysql8 mysql -u root -pzabbix zabbix
