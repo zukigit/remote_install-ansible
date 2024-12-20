@@ -1,5 +1,5 @@
 - name: Install zabbix container on redhats
-  hosts: redhat_servers
+  hosts: all
   become: true
   tasks:
     - name: Start service docker, if not started
@@ -34,6 +34,13 @@
 
     - name: Start docker images
       ansible.builtin.shell: docker compose -f /tmp/{{ docker_compose_path | basename }} up -d && sleep 30
+      when: ansible_distribution != "Amazon"
+
+    - name: Start docker images
+      ansible.builtin.shell: docker-compose -f /tmp/{{ docker_compose_path | basename }} up -d && sleep 30
+      when:
+        - ansible_distribution == "Amazon"
+        - ansible_distribution_major_version in ["2", "2023"]
 
     - name: Include jaz db setup tasks (Postgresql)
       include_tasks: ./jaz_postgres_db_setup_tasks.yml
