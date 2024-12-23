@@ -131,7 +131,7 @@
   tasks:
     - name: Copy the RPM file to the remote host amazon linux 2 or 2023
       ansible.builtin.copy:
-        src: "{{ amz_2 }}"
+        src: "{{ amzn2 }}"
         dest: /tmp/jobarg-manager.rpm
     
     - name: Enable Amazon Extras for PHP 7.2
@@ -161,7 +161,7 @@
         - ansible_distribution == "Amazon" and ansible_distribution_major_version == "2023"
 
     - name: Install additional PHP extensions+ for Amazon linux 2 and 2023
-      ansible.builtin.dnf:
+      ansible.builtin.yum:
         name:
           - php-mysqlnd
           - php-pgsql

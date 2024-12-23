@@ -88,7 +88,7 @@
   tasks:
     - name: Copy the RPM file to the remote host amazon linux 2
       ansible.builtin.copy:
-        src: "{{ amz_2 }}"
+        src: "{{ amzn2 }}"
         dest: /tmp/jobarg-agent.rpm
       when: 
         - ansible_distribution == "Amazon"
